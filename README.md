@@ -4,7 +4,7 @@
 
 ### About
 
-Hamstertalk is similar to IRC clients. But it has a unique feature called tunnels. Tunnels allow hamsters (users) to discover and explore other houses (chat rooms) with sequance. You can use a tunnel and quickly go to the next house that's linked to that tunnel.
+Hamstertalk is similar to IRC clients. But it has a unique feature called tunnels. Tunnels allow hamsters (users) to discover and explore other houses (chat rooms) with sequence. You can use a tunnel and quickly go to the next house that's linked to that tunnel.
 
 ### Commands
 
