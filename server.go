@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/HawkBrave/Hamstertalk/lib"
@@ -93,7 +94,18 @@ func (s *server) cmdSet(h *lib.Hamster, args []string) {
 }
 
 func (s *server) cmdUse(h *lib.Hamster, args []string) {
-
+	if args[1] == "tunnel" {
+		tid, err := strconv.Atoi(args[2])
+		if err != nil {
+			h.Err(fmt.Errorf("Couldn't convert tunnel id %s to int", err.Error()))
+			return
+		}
+		for id := range s.tunnels {
+			if tid == id {
+				h.Tunnel = s.tunnels[id]
+			}
+		}
+	}
 }
 
 func (s *server) cmdStepto(h *lib.Hamster, args []string) {
