@@ -16,9 +16,10 @@ func (h *House) Broadcast(sender *Hamster, msg string) {
 	for addr, m := range h.Members {
 		if addr != sender.Conn.RemoteAddr() {
 			m.Msg(msg)
-		} else {
-			sender.Conn.Write([]byte("   "))
 		}
+		/*else {
+			sender.Conn.Write([]byte("   "))
+		}*/
 	}
 }
 

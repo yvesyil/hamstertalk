@@ -29,6 +29,10 @@ func (h *Hamster) ReadInput() error {
 	args := strings.Split(msg, " ")
 	inp := strings.TrimSpace(args[0])
 
+	if len(inp) == 0 {
+		return nil
+	}
+
 	if inp[0] != '!' {
 		h.Commands <- Command{
 			ID:      Message,

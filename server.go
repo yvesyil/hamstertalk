@@ -58,8 +58,8 @@ func (s *server) newHamster(conn net.Conn) {
 		Commands: s.commands,
 	}
 
-	h.Conn.Write([]byte(">> "))
 	for {
+		h.Conn.Write([]byte(">> "))
 		err := h.ReadInput()
 		if err != nil {
 			break
@@ -166,7 +166,7 @@ func (s *server) cmdSqueakto(h *lib.Hamster, args []string) {
 				h.Err(err)
 				return
 			}
-			recv.Msg("🐹" + h.Nickname + " (privately): " + strings.Join(args[2:len(args)], " "))
+			recv.Msg("🐹" + h.Nickname + " (privately): " + strings.Join(args[2:], " "))
 		} else {
 			h.Err(errors.New("You cannot send private messages anonymous hamsters"))
 		}
@@ -176,11 +176,18 @@ func (s *server) cmdSqueakto(h *lib.Hamster, args []string) {
 }
 
 func (s *server) cmdExit(h *lib.Hamster, args []string) {
+
+	if len(args) <= 1 {
+		s.exitCurrentHouse(h)
+		return
+	}
+
 	where := args[1]
 	if where != "" && where[:7] == "tunnel#" {
 		s.exitCurrentTunnel(h)
 		return
 	}
+
 	_, ok := s.houses[where]
 	if !ok {
 		h.Err(errors.New("No such house"))
@@ -200,7 +207,7 @@ func (s *server) cmdQuit(h *lib.Hamster) {
 
 func (s *server) message(h *lib.Hamster, args []string) {
 	if h.House != nil {
-		h.House.Broadcast(h, "🐹"+h.Nickname+": "+strings.Join(args[:len(args)], " "))
+		h.House.Broadcast(h, "🐹 "+h.Nickname+": "+strings.Join(args[:], " "))
 	} else {
 		h.Err(errNotInHouse)
 	}
