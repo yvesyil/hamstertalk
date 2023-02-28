@@ -67,12 +67,13 @@ func (s *server) newHamster(conn net.Conn) {
 	}
 }
 
-var errNotInHouse = errors.New("You are not currently in a house")
+var errNotInHouse = errors.New("you are not currently in a house")
 
 func (s *server) exitCurrentHouse(h *lib.Hamster) {
 	if h.House != nil {
 		delete(h.House.Members, h.Conn.RemoteAddr())
 		h.House.Broadcast(h, fmt.Sprintf("%s has left the house", h.Nickname))
+		h.House = nil
 	}
 }
 
@@ -88,7 +89,7 @@ func (s *server) cmdSet(h *lib.Hamster, args []string) {
 		if h.Nickname != "anon" {
 			h.Msg(fmt.Sprintf("Now you shall be known as \"%s\".", h.Nickname))
 		} else {
-			h.Err(errors.New("You cannot take a preserved username"))
+			h.Err(errors.New("you cannot take a preserved username"))
 		}
 	}
 }
@@ -97,7 +98,7 @@ func (s *server) cmdUse(h *lib.Hamster, args []string) {
 	if args[1] == "tunnel" {
 		tid, err := strconv.Atoi(args[2])
 		if err != nil {
-			h.Err(fmt.Errorf("Couldn't convert tunnel id %s to int", err.Error()))
+			h.Err(fmt.Errorf("couldn't convert tunnel id %s to int", err.Error()))
 			return
 		}
 		for id := range s.tunnels {
@@ -135,6 +136,11 @@ func (s *server) cmdHopto(h *lib.Hamster, args []string) {
 func (s *server) cmdList(h *lib.Hamster, args []string) {
 	var list []string
 
+	if len(args) < 2 {
+		h.Err(errors.New("missing option"))
+		return
+	}
+
 	switch args[1] {
 	case "tunnels":
 		for id := range s.tunnels {
@@ -150,7 +156,7 @@ func (s *server) cmdList(h *lib.Hamster, args []string) {
 			return
 		}
 	default:
-		h.Err(errors.New("No such option"))
+		h.Err(errors.New("no such option"))
 		return
 	}
 
@@ -168,7 +174,7 @@ func (s *server) cmdSqueakto(h *lib.Hamster, args []string) {
 			}
 			recv.Msg("🐹" + h.Nickname + " (privately): " + strings.Join(args[2:], " "))
 		} else {
-			h.Err(errors.New("You cannot send private messages anonymous hamsters"))
+			h.Err(errors.New("you cannot send private messages anonymous hamsters"))
 		}
 	} else {
 		h.Err(errNotInHouse)
@@ -179,6 +185,7 @@ func (s *server) cmdExit(h *lib.Hamster, args []string) {
 
 	if len(args) <= 1 {
 		s.exitCurrentHouse(h)
+		h.Msg("You left the house")
 		return
 	}
 
@@ -190,7 +197,7 @@ func (s *server) cmdExit(h *lib.Hamster, args []string) {
 
 	_, ok := s.houses[where]
 	if !ok {
-		h.Err(errors.New("No such house"))
+		h.Err(errors.New("no such house"))
 	} else {
 		s.exitCurrentHouse(h)
 	}
@@ -210,5 +217,49 @@ func (s *server) message(h *lib.Hamster, args []string) {
 		h.House.Broadcast(h, "🐹 "+h.Nickname+": "+strings.Join(args[:], " "))
 	} else {
 		h.Err(errNotInHouse)
+	}
+}
+
+func (s *server) moveHamsterToNextHouse(h *lib.Hamster) {
+	p := h.Tunnel.Head
+	var found *lib.House
+
+	for p != nil {
+		if h.House == p.House {
+			found = p.House
+			break
+		}
+		p = p.Next
+	}
+
+	if found != nil {
+		newHouse := p.Next.House
+		if newHouse != nil {
+			s.exitCurrentHouse(h)
+			newHouse.Members[h.Conn.RemoteAddr()] = h
+			h.House = newHouse
+		}
+	}
+}
+
+func (s *server) moveHamsterToPrevHouse(h *lib.Hamster) {
+	p := h.Tunnel.Head
+	var found *lib.House
+
+	for p != nil {
+		if h.House == p.House {
+			found = p.House
+			break
+		}
+		p = p.Next
+	}
+
+	if found != nil {
+		newHouse := p.Previous.House
+		if newHouse != nil {
+			s.exitCurrentHouse(h)
+			newHouse.Members[h.Conn.RemoteAddr()] = h
+			h.House = newHouse
+		}
 	}
 }

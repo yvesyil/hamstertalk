@@ -2,11 +2,15 @@ package lib
 
 import "net"
 
+type TunnelNode struct {
+	House    *House
+	Next     *TunnelNode
+	Previous *TunnelNode
+}
+
 // Tunnel model
 type Tunnel struct {
-	ID       int
-	Users    map[net.Addr]*Hamster
-	Current  *House
-	Next     *House
-	Previous *House
+	ID    int
+	Users map[net.Addr]*Hamster
+	Head  *TunnelNode
 }
