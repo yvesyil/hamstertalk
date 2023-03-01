@@ -2,23 +2,25 @@
 
 ## About
 
-Hamstertalk is a simple chat server state machine.
+Hamstertalk is a chat server. It implements it's own minimal protocol.
 
-## Protocol
+## The Hamster Protocol
 
-### Message Format
+It sits on top of HTTP. Everything is expressed using events.
 
-```txt
-(UTC_TIMESTAMP)~HOUSE_ID~:HAMSTER_ID:@HAMSTER_NICKNAME@ :: MESSAGE_BODY
-```
-
-### Message Body
+### Event Format
 
 ```txt
-COMMAND [OPTION[=OPT_VALUE]] ... -- [ARG] ...
+(UTC_TIMESTAMP)~HOUSE_ID~:HAMSTER_ID:@HAMSTER_NICKNAME@ :: EVENT_BODY
 ```
 
-## Commands
+### Event Body
+
+```txt
+ACTION [OPTION[=OPT_VALUE]] ... -- [ACTION_BODY] ...
+```
+
+## Actions
 
 ### msg
 
