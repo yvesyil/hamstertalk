@@ -2,7 +2,7 @@
 
 ## About
 
-Hamstertalk is a chat server. It implements it's own minimal protocol.
+Hamstertalk is a chat server. It implements its own minimal protocol.
 
 ## The Hamster Protocol
 
